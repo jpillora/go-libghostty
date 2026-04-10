@@ -8,7 +8,7 @@
 - [ ] SGR parser (`sgr.h`)
 - [ ] Paste utilities (`paste.h`)
 - [ ] Focus encoding (`focus.h`)
-- [ ] Kitty graphics (`kitty_graphics.h`)
+- [x] Kitty graphics (`kitty_graphics.h`)
 - [ ] Allocator (`allocator.h` — `ghostty_alloc`, `ghostty_free`)
 - [ ] Selection type (`selection.h`)
 
