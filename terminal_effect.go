@@ -8,7 +8,6 @@ package libghostty
 // recovers the Terminal and dispatches to the user-supplied Go effect handler.
 
 /*
-#include <stdlib.h>
 #include <ghostty/vt.h>
 
 // Forward declarations for the Go trampolines so we can take their
@@ -214,22 +213,28 @@ func goDeviceAttributesTrampoline(_ C.GhosttyTerminal, userdata unsafe.Pointer, 
 	return C.bool(true)
 }
 
-// effectString copies data into C memory, updates effectBuf, and
-// returns a GhosttyString pointing to it. The previous effectBuf
-// is freed. Returns a zero-length GhosttyString if data is empty.
+// effectString copies data into C memory allocated via the libghostty
+// allocator, updates effectBuf/effectBufLen, and returns a
+// GhosttyString pointing to it. The previous effectBuf is freed.
+// Returns a zero-length GhosttyString if data is empty.
 func (t *Terminal) effectString(data []byte) C.GhosttyString {
 	if t.effectBuf != nil {
-		C.free(t.effectBuf)
+		Free(t.effectBuf, t.effectBufLen)
+		t.effectBuf = nil
+		t.effectBufLen = 0
 	}
 
 	if len(data) == 0 {
 		return C.GhosttyString{}
 	}
 
-	cmem := C.CBytes(data)
+	n := uintptr(len(data))
+	cmem := Alloc(n)
+	copy(unsafe.Slice((*byte)(cmem), n), data)
 	t.effectBuf = cmem
+	t.effectBufLen = n
 	return C.GhosttyString{
 		ptr: (*C.uint8_t)(cmem),
-		len: C.size_t(len(data)),
+		len: C.size_t(n),
 	}
 }

@@ -9,7 +9,7 @@
 - [ ] Paste utilities (`paste.h`)
 - [ ] Focus encoding (`focus.h`)
 - [x] Kitty graphics (`kitty_graphics.h`)
-- [ ] Allocator (`allocator.h` — `ghostty_alloc`, `ghostty_free`)
+- [x] Allocator (`allocator.h` — `ghostty_alloc`, `ghostty_free`)
 - [ ] Selection type (`selection.h`)
 
 ## Partially Bound

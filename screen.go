@@ -1,7 +1,6 @@
 package libghostty
 
 /*
-#include <stdlib.h>
 #include <ghostty/vt.h>
 */
 import "C"
@@ -213,8 +212,8 @@ func (c *Cell) GetMulti(keys []CellData, values []unsafe.Pointer) error {
 		return nil
 	}
 	// Allocate the void** array in C memory to satisfy cgo pointer-passing rules.
-	cVals := cValuesArray(values)
-	defer C.free(unsafe.Pointer(cVals))
+	cVals, cValsSize := cValuesArray(values)
+	defer Free(unsafe.Pointer(cVals), cValsSize)
 	return resultError(C.ghostty_cell_get_multi(
 		c.c,
 		C.size_t(len(keys)),
@@ -354,8 +353,8 @@ func (r *Row) GetMulti(keys []RowData, values []unsafe.Pointer) error {
 		return nil
 	}
 	// Allocate the void** array in C memory to satisfy cgo pointer-passing rules.
-	cVals := cValuesArray(values)
-	defer C.free(unsafe.Pointer(cVals))
+	cVals, cValsSize := cValuesArray(values)
+	defer Free(unsafe.Pointer(cVals), cValsSize)
 	return resultError(C.ghostty_row_get_multi(
 		r.c,
 		C.size_t(len(keys)),

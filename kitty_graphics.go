@@ -5,7 +5,6 @@ package libghostty
 // protocol.
 
 /*
-#include <stdlib.h>
 #include <ghostty/vt.h>
 
 // Helper to create a properly initialized GhosttySelection (sized struct).
@@ -446,8 +445,8 @@ func (img *KittyGraphicsImage) GetMulti(keys []KittyGraphicsImageData, values []
 		return nil
 	}
 	// Allocate the void** array in C memory to satisfy cgo pointer-passing rules.
-	cVals := cValuesArray(values)
-	defer C.free(unsafe.Pointer(cVals))
+	cVals, cValsSize := cValuesArray(values)
+	defer Free(unsafe.Pointer(cVals), cValsSize)
 	return resultError(C.ghostty_kitty_graphics_image_get_multi(
 		img.ptr,
 		C.size_t(len(keys)),
@@ -526,8 +525,8 @@ func (img *KittyGraphicsImage) Info() (*KittyGraphicsImageInfo, error) {
 		unsafe.Pointer(&dataPtr),
 		unsafe.Pointer(&dataLen),
 	}
-	cVals := cValuesArray(values[:])
-	defer C.free(unsafe.Pointer(cVals))
+	cVals, cValsSize := cValuesArray(values[:])
+	defer Free(unsafe.Pointer(cVals), cValsSize)
 
 	if err := resultError(C.ghostty_kitty_graphics_image_get_multi(
 		img.ptr,
@@ -649,8 +648,8 @@ func (it *KittyGraphicsPlacementIterator) GetMulti(keys []KittyGraphicsPlacement
 		return nil
 	}
 	// Allocate the void** array in C memory to satisfy cgo pointer-passing rules.
-	cVals := cValuesArray(values)
-	defer C.free(unsafe.Pointer(cVals))
+	cVals, cValsSize := cValuesArray(values)
+	defer Free(unsafe.Pointer(cVals), cValsSize)
 	return resultError(C.ghostty_kitty_graphics_placement_get_multi(
 		it.ptr,
 		C.size_t(len(keys)),
@@ -873,8 +872,8 @@ func (it *KittyGraphicsPlacementIterator) Info() (*KittyGraphicsPlacementInfo, e
 		unsafe.Pointer(&rows),
 		unsafe.Pointer(&z),
 	}
-	cVals := cValuesArray(values[:])
-	defer C.free(unsafe.Pointer(cVals))
+	cVals, cValsSize := cValuesArray(values[:])
+	defer Free(unsafe.Pointer(cVals), cValsSize)
 
 	if err := resultError(C.ghostty_kitty_graphics_placement_get_multi(
 		it.ptr,

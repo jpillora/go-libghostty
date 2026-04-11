@@ -5,7 +5,6 @@ package libghostty
 // Functions are ordered alphabetically.
 
 /*
-#include <stdlib.h>
 #include <ghostty/vt.h>
 
 // Helper to create a properly initialized GhosttyRenderStateColors (sized struct).
@@ -209,8 +208,8 @@ func (rs *RenderState) GetMulti(keys []RenderStateData, values []unsafe.Pointer)
 		return nil
 	}
 	// Allocate the void** array in C memory to satisfy cgo pointer-passing rules.
-	cVals := cValuesArray(values)
-	defer C.free(unsafe.Pointer(cVals))
+	cVals, cValsSize := cValuesArray(values)
+	defer Free(unsafe.Pointer(cVals), cValsSize)
 	return resultError(C.ghostty_render_state_get_multi(
 		rs.ptr,
 		C.size_t(len(keys)),

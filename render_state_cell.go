@@ -4,7 +4,6 @@ package libghostty
 // GhosttyRenderStateRowCells C APIs.
 
 /*
-#include <stdlib.h>
 #include <ghostty/vt.h>
 */
 import "C"
@@ -119,8 +118,8 @@ func (rc *RenderStateRowCells) GetMulti(keys []RenderStateRowCellsData, values [
 		return nil
 	}
 	// Allocate the void** array in C memory to satisfy cgo pointer-passing rules.
-	cVals := cValuesArray(values)
-	defer C.free(unsafe.Pointer(cVals))
+	cVals, cValsSize := cValuesArray(values)
+	defer Free(unsafe.Pointer(cVals), cValsSize)
 	return resultError(C.ghostty_render_state_row_cells_get_multi(
 		rc.ptr,
 		C.size_t(len(keys)),

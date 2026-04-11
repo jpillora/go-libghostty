@@ -4,7 +4,6 @@ package libghostty
 // Functions are ordered alphabetically.
 
 /*
-#include <stdlib.h>
 #include <ghostty/vt.h>
 */
 import "C"
@@ -230,8 +229,8 @@ func (t *Terminal) GetMulti(keys []TerminalData, values []unsafe.Pointer) error 
 		return nil
 	}
 	// Allocate the void** array in C memory to satisfy cgo pointer-passing rules.
-	cVals := cValuesArray(values)
-	defer C.free(unsafe.Pointer(cVals))
+	cVals, cValsSize := cValuesArray(values)
+	defer Free(unsafe.Pointer(cVals), cValsSize)
 	return resultError(C.ghostty_terminal_get_multi(
 		t.ptr,
 		C.size_t(len(keys)),

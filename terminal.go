@@ -1,7 +1,6 @@
 package libghostty
 
 /*
-#include <stdlib.h>
 #include <ghostty/vt.h>
 */
 import "C"
@@ -35,7 +34,8 @@ type Terminal struct {
 	// returned by an effect trampoline (e.g. enquiry, xtversion).
 	// libghostty copies the data immediately, so a single buffer
 	// shared across effects is sufficient.
-	effectBuf unsafe.Pointer
+	effectBuf    unsafe.Pointer
+	effectBufLen uintptr
 }
 
 // TerminalOption is a functional option for configuring a Terminal.
@@ -246,7 +246,7 @@ func (t *Terminal) Close() {
 	t.handle.Delete()
 	C.ghostty_terminal_free(t.ptr)
 	if t.effectBuf != nil {
-		C.free(t.effectBuf)
+		Free(t.effectBuf, t.effectBufLen)
 	}
 }
 

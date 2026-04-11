@@ -4,7 +4,6 @@ package libghostty
 // GhosttyRenderStateRowIterator C APIs.
 
 /*
-#include <stdlib.h>
 #include <ghostty/vt.h>
 */
 import "C"
@@ -99,8 +98,8 @@ func (ri *RenderStateRowIterator) GetMulti(keys []RenderStateRowData, values []u
 		return nil
 	}
 	// Allocate the void** array in C memory to satisfy cgo pointer-passing rules.
-	cVals := cValuesArray(values)
-	defer C.free(unsafe.Pointer(cVals))
+	cVals, cValsSize := cValuesArray(values)
+	defer Free(unsafe.Pointer(cVals), cValsSize)
 	return resultError(C.ghostty_render_state_row_get_multi(
 		ri.ptr,
 		C.size_t(len(keys)),
