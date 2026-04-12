@@ -1,3 +1,4 @@
 .direnv/
 build/
+.zig-global-cache/
 result
