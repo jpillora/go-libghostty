@@ -16,27 +16,24 @@ func main() {
 	// Bell counter, captured by the bell handler closure.
 	bellCount := 0
 
-	// We declare term here so the title_changed closure can capture it.
-	var term *ghostty.Terminal
-
-	var err error
-	term, err = ghostty.NewTerminal(
+	term, err := ghostty.NewTerminal(
 		ghostty.WithSize(80, 24),
 
 		// write_pty: called when the terminal writes data back (e.g. query responses).
-		ghostty.WithWritePty(func(data []byte) {
+		ghostty.WithWritePty(func(_ *ghostty.Terminal, data []byte) {
 			fmt.Printf("write_pty: %d bytes: %q\n", len(data), data)
 		}),
 
 		// bell: called on BEL (0x07).
-		ghostty.WithBell(func() {
+		ghostty.WithBell(func(_ *ghostty.Terminal) {
 			bellCount++
 			fmt.Printf("bell: count=%d\n", bellCount)
 		}),
 
 		// title_changed: called when the terminal title changes via OSC 0/2.
-		ghostty.WithTitleChanged(func() {
-			x, err := term.CursorX()
+		// The terminal is passed directly as a parameter.
+		ghostty.WithTitleChanged(func(t *ghostty.Terminal) {
+			x, err := t.CursorX()
 			if err != nil {
 				log.Fatal(err)
 			}

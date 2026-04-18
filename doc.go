@@ -32,7 +32,7 @@
 //
 //	term, _ := libghostty.NewTerminal(
 //		libghostty.WithSize(80, 24),
-//		libghostty.WithWritePty(func(data []byte) {
+//		libghostty.WithWritePty(func(_ *libghostty.Terminal, data []byte) {
 //			os.Stdout.Write(data)
 //		}),
 //	)

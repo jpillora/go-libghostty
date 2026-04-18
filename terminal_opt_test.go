@@ -69,7 +69,7 @@ func TestTerminalSetColors(t *testing.T) {
 
 func TestTerminalWithBell(t *testing.T) {
 	var bellCount int
-	term, err := NewTerminal(WithSize(80, 24), WithBell(func() {
+	term, err := NewTerminal(WithSize(80, 24), WithBell(func(_ *Terminal) {
 		bellCount++
 	}))
 	if err != nil {
@@ -98,7 +98,7 @@ func TestTerminalSetEffectBell(t *testing.T) {
 	defer term.Close()
 
 	var bellCount int
-	term.SetEffectBell(func() {
+	term.SetEffectBell(func(_ *Terminal) {
 		bellCount++
 	})
 
@@ -117,7 +117,7 @@ func TestTerminalSetEffectBell(t *testing.T) {
 
 func TestTerminalWithWritePty(t *testing.T) {
 	var received []byte
-	term, err := NewTerminal(WithSize(80, 24), WithWritePty(func(data []byte) {
+	term, err := NewTerminal(WithSize(80, 24), WithWritePty(func(_ *Terminal, data []byte) {
 		received = append(received, data...)
 	}))
 	if err != nil {
@@ -134,7 +134,7 @@ func TestTerminalWithWritePty(t *testing.T) {
 
 func TestTerminalWithTitleChanged(t *testing.T) {
 	var titleChanged int
-	term, err := NewTerminal(WithSize(80, 24), WithTitleChanged(func() {
+	term, err := NewTerminal(WithSize(80, 24), WithTitleChanged(func(_ *Terminal) {
 		titleChanged++
 	}))
 	if err != nil {
@@ -153,10 +153,10 @@ func TestTerminalWithEnquiry(t *testing.T) {
 	var received []byte
 	term, err := NewTerminal(
 		WithSize(80, 24),
-		WithWritePty(func(data []byte) {
+		WithWritePty(func(_ *Terminal, data []byte) {
 			received = append(received, data...)
 		}),
-		WithEnquiry(func() []byte {
+		WithEnquiry(func(_ *Terminal) []byte {
 			return []byte("hello")
 		}),
 	)
@@ -176,10 +176,10 @@ func TestTerminalWithXtversion(t *testing.T) {
 	var received []byte
 	term, err := NewTerminal(
 		WithSize(80, 24),
-		WithWritePty(func(data []byte) {
+		WithWritePty(func(_ *Terminal, data []byte) {
 			received = append(received, data...)
 		}),
-		WithXtversion(func() string {
+		WithXtversion(func(_ *Terminal) string {
 			return "myterm 1.0"
 		}),
 	)

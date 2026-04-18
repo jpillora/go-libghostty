@@ -115,7 +115,7 @@ func terminalFromUserdata(userdata unsafe.Pointer) *Terminal {
 func goWritePtyTrampoline(_ C.GhosttyTerminal, userdata unsafe.Pointer, data *C.uint8_t, length C.size_t) {
 	t := terminalFromUserdata(userdata)
 	if t.onWritePty != nil {
-		t.onWritePty(C.GoBytes(unsafe.Pointer(data), C.int(length)))
+		t.onWritePty(t, C.GoBytes(unsafe.Pointer(data), C.int(length)))
 	}
 }
 
@@ -123,7 +123,7 @@ func goWritePtyTrampoline(_ C.GhosttyTerminal, userdata unsafe.Pointer, data *C.
 func goBellTrampoline(_ C.GhosttyTerminal, userdata unsafe.Pointer) {
 	t := terminalFromUserdata(userdata)
 	if t.onBell != nil {
-		t.onBell()
+		t.onBell(t)
 	}
 }
 
@@ -131,7 +131,7 @@ func goBellTrampoline(_ C.GhosttyTerminal, userdata unsafe.Pointer) {
 func goTitleChangedTrampoline(_ C.GhosttyTerminal, userdata unsafe.Pointer) {
 	t := terminalFromUserdata(userdata)
 	if t.onTitleChanged != nil {
-		t.onTitleChanged()
+		t.onTitleChanged(t)
 	}
 }
 
@@ -141,7 +141,7 @@ func goEnquiryTrampoline(_ C.GhosttyTerminal, userdata unsafe.Pointer) C.Ghostty
 	if t.onEnquiry == nil {
 		return C.GhosttyString{}
 	}
-	return t.effectString(t.onEnquiry())
+	return t.effectString(t.onEnquiry(t))
 }
 
 //export goXtversionTrampoline
@@ -150,7 +150,7 @@ func goXtversionTrampoline(_ C.GhosttyTerminal, userdata unsafe.Pointer) C.Ghost
 	if t.onXtversion == nil {
 		return C.GhosttyString{}
 	}
-	return t.effectString([]byte(t.onXtversion()))
+	return t.effectString([]byte(t.onXtversion(t)))
 }
 
 //export goSizeTrampoline
@@ -159,7 +159,7 @@ func goSizeTrampoline(_ C.GhosttyTerminal, userdata unsafe.Pointer, outSize *C.G
 	if t.onSize == nil {
 		return C.bool(false)
 	}
-	size, ok := t.onSize()
+	size, ok := t.onSize(t)
 	if !ok {
 		return C.bool(false)
 	}
@@ -176,7 +176,7 @@ func goColorSchemeTrampoline(_ C.GhosttyTerminal, userdata unsafe.Pointer, outSc
 	if t.onColorScheme == nil {
 		return C.bool(false)
 	}
-	scheme, ok := t.onColorScheme()
+	scheme, ok := t.onColorScheme(t)
 	if !ok {
 		return C.bool(false)
 	}
@@ -190,7 +190,7 @@ func goDeviceAttributesTrampoline(_ C.GhosttyTerminal, userdata unsafe.Pointer, 
 	if t.onDeviceAttributes == nil {
 		return C.bool(false)
 	}
-	attrs, ok := t.onDeviceAttributes()
+	attrs, ok := t.onDeviceAttributes(t)
 	if !ok {
 		return C.bool(false)
 	}

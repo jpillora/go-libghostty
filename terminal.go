@@ -68,43 +68,51 @@ type TerminalConfig struct {
 }
 
 // WritePtyFn is called when the terminal writes data back to the pty
-// (e.g. query responses). The data is only valid for the call duration.
+// (e.g. query responses). The first parameter is the terminal that
+// triggered the effect. The data is only valid for the call duration.
 // C: GhosttyTerminalWritePtyFn
-type WritePtyFn func(data []byte)
+type WritePtyFn func(t *Terminal, data []byte)
 
 // BellFn is called when the terminal receives a BEL character (0x07).
+// The parameter is the terminal that triggered the effect.
 // C: GhosttyTerminalBellFn
-type BellFn func()
+type BellFn func(t *Terminal)
 
 // TitleChangedFn is called when the terminal title changes via OSC 0/2.
+// The parameter is the terminal that triggered the effect.
 // C: GhosttyTerminalTitleChangedFn
-type TitleChangedFn func()
+type TitleChangedFn func(t *Terminal)
 
 // EnquiryFn is called when the terminal receives ENQ (0x05).
+// The first parameter is the terminal that triggered the effect.
 // Return the response bytes; nil or empty means no response.
 // C: GhosttyTerminalEnquiryFn
-type EnquiryFn func() []byte
+type EnquiryFn func(t *Terminal) []byte
 
 // XtversionFn is called for XTVERSION queries (CSI > q).
+// The first parameter is the terminal that triggered the effect.
 // Return the version string; empty uses the default "libghostty".
 // C: GhosttyTerminalXtversionFn
-type XtversionFn func() string
+type XtversionFn func(t *Terminal) string
 
 // SizeFn is called for XTWINOPS size queries (CSI 14/16/18 t).
+// The first parameter is the terminal that triggered the effect.
 // Return the size and true, or zero value and false to ignore the query.
 // C: GhosttyTerminalSizeFn
-type SizeFn func() (SizeReportSize, bool)
+type SizeFn func(t *Terminal) (SizeReportSize, bool)
 
 // ColorSchemeFn is called for color scheme queries (CSI ? 996 n).
+// The first parameter is the terminal that triggered the effect.
 // Return the scheme and true, or zero value and false to ignore the query.
 // C: GhosttyTerminalColorSchemeFn
-type ColorSchemeFn func() (ColorScheme, bool)
+type ColorSchemeFn func(t *Terminal) (ColorScheme, bool)
 
 // DeviceAttributesFn is called for device attributes queries
-// (CSI c / CSI > c / CSI = c). Return the attributes and true,
+// (CSI c / CSI > c / CSI = c). The first parameter is the terminal
+// that triggered the effect. Return the attributes and true,
 // or zero value and false to ignore the query.
 // C: GhosttyTerminalDeviceAttributesFn
-type DeviceAttributesFn func() (DeviceAttributes, bool)
+type DeviceAttributesFn func(t *Terminal) (DeviceAttributes, bool)
 
 // WithSize sets the terminal dimensions in cells.
 // Both cols and rows must be greater than zero.
