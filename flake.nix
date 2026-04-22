@@ -25,7 +25,9 @@
             pkgs.cmake
             pkgs.go
             pkgs.pinact
-            zig.packages.${system}."0.15.2"
+            (if pkgs.stdenv.isDarwin
+              then zig.packages.${system}.brew."0.15.2"
+              else zig.packages.${system}."0.15.2")
           ];
 
           shellHook = ''
