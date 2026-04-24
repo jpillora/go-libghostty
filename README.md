@@ -79,6 +79,47 @@ go build -tags dynamic
 See the [Ghostty docs](https://ghostty.org/docs/install/build) for
 building `libghostty-vt` from source.
 
+### Cross-Compilation
+
+Because `libghostty-vt` only depends on libc, cross-compilation is
+straightforward using [Zig](https://ziglang.org/) as the C compiler.
+Zig is already required to build `libghostty-vt`, so no extra tooling
+is needed. You don't need to write any Zig code, we're just using
+Zig as a C/C++ compiler.
+
+First, build `libghostty-vt` for your target (from the ghostty source tree):
+
+```shell
+zig build -Demit-lib-vt -Dtarget=x86_64-linux-gnu --prefix /tmp/ghostty-linux-amd64
+```
+
+Then cross-compile your Go project with `zig cc`:
+
+```shell
+CGO_ENABLED=1 \
+GOOS=linux GOARCH=amd64 \
+CC="zig cc -target x86_64-linux-gnu" \
+CXX="zig c++ -target x86_64-linux-gnu" \
+CGO_CFLAGS="-I/tmp/ghostty-linux-amd64/include -DGHOSTTY_STATIC" \
+CGO_LDFLAGS="-L/tmp/ghostty-linux-amd64/lib -lghostty-vt" \
+go build ./...
+```
+
+Supported targets include `x86_64-linux-gnu`, `aarch64-linux-gnu`,
+`x86_64-macos`, `aarch64-macos`, `x86_64-windows-gnu`, and
+`aarch64-windows-gnu`.
+
+If you are using ghostty's CMake integration via `FetchContent`, the
+`ghostty_vt_add_target()` function handles the zig build for you:
+
+```cmake
+FetchContent_MakeAvailable(ghostty)
+ghostty_vt_add_target(NAME linux-amd64 ZIG_TARGET x86_64-linux-gnu)
+```
+
+See the [ghostty CMakeLists.txt](https://github.com/ghostty-org/ghostty/blob/main/CMakeLists.txt)
+for full documentation of `ghostty_vt_add_target()`.
+
 ## Development
 
 CMake fetches and builds `libghostty-vt` automatically. CMake is only
