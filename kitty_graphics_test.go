@@ -45,7 +45,7 @@ func newKittyTerminal(t *testing.T) *Terminal {
 		WithSize(80, 24),
 		// Install a WritePty handler so the terminal can send
 		// protocol responses (required for kitty graphics).
-		WithWritePty(func(data []byte) {}),
+		WithWritePty(func(_ *Terminal, _ []byte) {}),
 	)
 	if err != nil {
 		t.Fatal(err)

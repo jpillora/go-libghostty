@@ -68,43 +68,51 @@ type TerminalConfig struct {
 }
 
 // WritePtyFn is called when the terminal writes data back to the pty
-// (e.g. query responses). The data is only valid for the call duration.
+// (e.g. query responses). The first parameter is the terminal that
+// triggered the effect. The data is only valid for the call duration.
 // C: GhosttyTerminalWritePtyFn
-type WritePtyFn func(data []byte)
+type WritePtyFn func(t *Terminal, data []byte)
 
 // BellFn is called when the terminal receives a BEL character (0x07).
+// The parameter is the terminal that triggered the effect.
 // C: GhosttyTerminalBellFn
-type BellFn func()
+type BellFn func(t *Terminal)
 
 // TitleChangedFn is called when the terminal title changes via OSC 0/2.
+// The parameter is the terminal that triggered the effect.
 // C: GhosttyTerminalTitleChangedFn
-type TitleChangedFn func()
+type TitleChangedFn func(t *Terminal)
 
 // EnquiryFn is called when the terminal receives ENQ (0x05).
+// The first parameter is the terminal that triggered the effect.
 // Return the response bytes; nil or empty means no response.
 // C: GhosttyTerminalEnquiryFn
-type EnquiryFn func() []byte
+type EnquiryFn func(t *Terminal) []byte
 
 // XtversionFn is called for XTVERSION queries (CSI > q).
+// The first parameter is the terminal that triggered the effect.
 // Return the version string; empty uses the default "libghostty".
 // C: GhosttyTerminalXtversionFn
-type XtversionFn func() string
+type XtversionFn func(t *Terminal) string
 
 // SizeFn is called for XTWINOPS size queries (CSI 14/16/18 t).
+// The first parameter is the terminal that triggered the effect.
 // Return the size and true, or zero value and false to ignore the query.
 // C: GhosttyTerminalSizeFn
-type SizeFn func() (SizeReportSize, bool)
+type SizeFn func(t *Terminal) (SizeReportSize, bool)
 
 // ColorSchemeFn is called for color scheme queries (CSI ? 996 n).
+// The first parameter is the terminal that triggered the effect.
 // Return the scheme and true, or zero value and false to ignore the query.
 // C: GhosttyTerminalColorSchemeFn
-type ColorSchemeFn func() (ColorScheme, bool)
+type ColorSchemeFn func(t *Terminal) (ColorScheme, bool)
 
 // DeviceAttributesFn is called for device attributes queries
-// (CSI c / CSI > c / CSI = c). Return the attributes and true,
+// (CSI c / CSI > c / CSI = c). The first parameter is the terminal
+// that triggered the effect. Return the attributes and true,
 // or zero value and false to ignore the query.
 // C: GhosttyTerminalDeviceAttributesFn
-type DeviceAttributesFn func() (DeviceAttributes, bool)
+type DeviceAttributesFn func(t *Terminal) (DeviceAttributes, bool)
 
 // WithSize sets the terminal dimensions in cells.
 // Both cols and rows must be greater than zero.
@@ -231,7 +239,7 @@ func NewTerminal(opts ...TerminalOption) (*Terminal, error) {
 	C.ghostty_terminal_set(
 		t.ptr,
 		C.GHOSTTY_TERMINAL_OPT_USERDATA,
-		unsafe.Pointer(t.handle),
+		handleToPointer(t.handle),
 	)
 
 	// Register any effects that were provided via options.
@@ -367,37 +375,6 @@ type Scrollbar struct {
 	Len uint64
 }
 
-// KittyKeyFlags holds the current Kitty keyboard protocol flags.
-// These can be combined using bitwise OR.
-// C: GhosttyKittyKeyFlags (uint8_t)
-type KittyKeyFlags uint8
-
-// Kitty keyboard protocol flag constants.
-const (
-	// KittyKeyDisabled means the Kitty keyboard protocol is disabled.
-	KittyKeyDisabled KittyKeyFlags = C.GHOSTTY_KITTY_KEY_DISABLED
-
-	// KittyKeyDisambiguate enables disambiguating escape codes.
-	KittyKeyDisambiguate KittyKeyFlags = C.GHOSTTY_KITTY_KEY_DISAMBIGUATE
-
-	// KittyKeyReportEvents enables reporting key press and release events.
-	KittyKeyReportEvents KittyKeyFlags = C.GHOSTTY_KITTY_KEY_REPORT_EVENTS
-
-	// KittyKeyReportAlternates enables reporting alternate key codes.
-	KittyKeyReportAlternates KittyKeyFlags = C.GHOSTTY_KITTY_KEY_REPORT_ALTERNATES
-
-	// KittyKeyReportAll enables reporting all key events including those
-	// normally handled by the terminal.
-	KittyKeyReportAll KittyKeyFlags = C.GHOSTTY_KITTY_KEY_REPORT_ALL
-
-	// KittyKeyReportAssociated enables reporting associated text with
-	// key events.
-	KittyKeyReportAssociated KittyKeyFlags = C.GHOSTTY_KITTY_KEY_REPORT_ASSOCIATED
-
-	// KittyKeyAll has all Kitty keyboard protocol flags enabled.
-	KittyKeyAll KittyKeyFlags = C.GHOSTTY_KITTY_KEY_ALL
-)
-
 // KittyGraphics returns the Kitty graphics image storage for the
 // terminal's active screen. The returned handle is borrowed from
 // the terminal and remains valid until the next mutating call
@@ -430,4 +407,14 @@ func (t *Terminal) GridRef(point Point) (*GridRef, error) {
 		return nil, err
 	}
 	return &GridRef{ref: ref}, nil
+}
+
+// handleToPointer converts a cgo.Handle (uintptr) to unsafe.Pointer
+// for passing as C userdata. The handle is an opaque integer, not a
+// real Go pointer, so we suppress checkptr which would otherwise
+// reject it under -race.
+//
+//go:nocheckptr
+func handleToPointer(h cgo.Handle) unsafe.Pointer {
+	return unsafe.Pointer(h)
 }

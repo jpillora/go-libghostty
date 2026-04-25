@@ -2,12 +2,12 @@
 
 ## Not Bound
 
-- [ ] Key encoding (`key.h`, `key/encoder.h`, `key/event.h`)
-- [ ] Mouse encoding (`mouse.h`, `mouse/encoder.h`, `mouse/event.h`)
+- [x] Key encoding (`key.h`, `key/encoder.h`, `key/event.h`)
+- [x] Mouse encoding (`mouse.h`, `mouse/encoder.h`, `mouse/event.h`)
 - [ ] OSC parser (`osc.h`)
 - [ ] SGR parser (`sgr.h`)
 - [ ] Paste utilities (`paste.h`)
-- [ ] Focus encoding (`focus.h`)
+- [x] Focus encoding (`focus.h`)
 - [x] Kitty graphics (`kitty_graphics.h`)
 - [x] Allocator (`allocator.h` — `ghostty_alloc`, `ghostty_free`)
 - [ ] Selection type (`selection.h`)
@@ -22,4 +22,3 @@
 - [ ] `ghostty_grid_ref_hyperlink_uri()`
 - [ ] `ghostty_terminal_point_from_grid_ref()`
 - [ ] `ghostty_formatter_format_buf()`
-- [ ] `ghostty_focus_encode()`
